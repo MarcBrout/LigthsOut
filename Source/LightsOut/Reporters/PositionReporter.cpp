@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "GameFramework/Actor.h"
 #include "PositionReporter.h"
+#include "GameFramework/Actor.h"
 
 // Sets default values for this component's properties
 UPositionReporter::UPositionReporter()
@@ -21,9 +21,10 @@ void UPositionReporter::BeginPlay()
 	owner = GetOwner();
 
 	FString name = owner->GetName();
+	FVector location = owner->GetTransform().GetLocation();
 
 	UE_LOG(LogTemp, Warning, TEXT("Position reporter: reporting for %s!"), *name);
-	
+	UE_LOG(LogTemp, Warning, TEXT("Position reporter: position : x=%f, y=%f, z=%f\n"), location.X, location.Y, location.Z);
 }
 
 
