@@ -1,6 +1,7 @@
 // Copyright Marc Brout 2018
 
 #include "DoorOpener.h"
+#include "Engine/World.h"
 #include "GameFramework/Actor.h"
 
 // Sets default values for this component's properties
@@ -19,11 +20,17 @@ void UDoorOpener::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
 	owner = GetOwner();
 
-	FRotator rot = FRotator(0.f, -40.f, 0.f);
+	// Adding the main player to the list of openers
+	 AActor *pl = GetWorld()->GetFirstPlayerController()->GetPawn();
+	 if (pl != nullptr)
+		openers.Add(pl);
+}
 
+void UDoorOpener::openDoor(float angle)
+{
+	FRotator rot = FRotator(0.f, angle, 0.f);
 	owner->SetActorRotation(rot);
 }
 
@@ -32,7 +39,18 @@ void UDoorOpener::BeginPlay()
 void UDoorOpener::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	bool bIsTriggerOverlaped = false;
 
-	// ...
+	// If the one autorised opener for the openers array overlap the trigger, open the door
+	for (AActor *actor : openers) {
+		if (actor != nullptr && trigger->IsOverlappingActor(actor)) {
+			openDoor(-40.f);
+			bIsTriggerOverlaped = true;
+		}
+	}
+
+	if (!bIsTriggerOverlaped) {
+		openDoor(0.f);
+	}
 }
 
