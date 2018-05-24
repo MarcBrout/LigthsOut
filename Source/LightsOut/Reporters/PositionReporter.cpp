@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+#include "GameFramework/Actor.h"
 #include "PositionReporter.h"
-
 
 // Sets default values for this component's properties
 UPositionReporter::UPositionReporter()
@@ -18,8 +18,11 @@ UPositionReporter::UPositionReporter()
 void UPositionReporter::BeginPlay()
 {
 	Super::BeginPlay();
+	owner = GetOwner();
 
-	// ...
+	FString name = owner->GetName();
+
+	UE_LOG(LogTemp, Warning, TEXT("Position reporter: reporting for %s!"), *name);
 	
 }
 
@@ -30,5 +33,6 @@ void UPositionReporter::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// ...
+	// UE_LOG(LogTemp, Warning, TEXT("Position reporter: reporting for duty!"));
 }
 
