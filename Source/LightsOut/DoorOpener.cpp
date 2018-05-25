@@ -28,10 +28,9 @@ void UDoorOpener::BeginPlay()
 }
 
 
-void UDoorOpener::openDoor(float angle)
+void UDoorOpener::RotateDoor(float angle)
 {
-	FRotator rot = FRotator(0.f, angle, 0.f);
-	owner->SetActorRotation(rot);
+	owner->SetActorRotation(FRotator(0.f, angle, 0.f));
 }
 
 
@@ -39,18 +38,18 @@ void UDoorOpener::openDoor(float angle)
 void UDoorOpener::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	bool bIsTriggerOverlaped = false;
-
+	
 //	 If the one autorised opener for the openers array overlap the trigger, open the door
 	for (TWeakObjectPtr<AActor>& actor : openers) {
 		if (actor.IsValid() && trigger->IsOverlappingActor(actor.Get())) {
-			openDoor(-40.f);
-			bIsTriggerOverlaped = true;
+			RotateDoor(OpenAngle);
+			LastDoorOpenTime = GetWorld()->GetTimeSeconds();
 		}
 	}
 
-	if (!bIsTriggerOverlaped) {
-		openDoor(0.f);
+	// close the door after some times
+	if (GetWorld()->GetTimeSeconds() - LastDoorOpenTime > DoorCloseDelay) {
+		RotateDoor(0.f);
 	}
 }
 

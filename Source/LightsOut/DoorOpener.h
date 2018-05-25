@@ -21,7 +21,7 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-	void openDoor(float angle);
+	void RotateDoor(float angle);
 
 public:	
 	// Called every frame
@@ -29,6 +29,7 @@ public:
 
 private:
 	AActor * owner;
+	float LastDoorOpenTime = 0.f;
 	
 	UPROPERTY(EditAnywhere)
 	float OpenAngle;
@@ -38,4 +39,8 @@ private:
 
 	UPROPERTY(EditAnywhere)
  	TArray<TWeakObjectPtr<AActor>> openers;
+
+	UPROPERTY(EditAnywhere)
+	float DoorCloseDelay = 1.f;
+
 };
