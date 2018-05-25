@@ -1,6 +1,5 @@
 // Copyright Marc Brout 2018
 
-#include "Engine/World.h"
 #include "Grabber.h"
 #include "DrawDebugHelpers.h"
 
@@ -16,31 +15,74 @@ UGrabber::UGrabber()
 	// ...
 }
 
-
 // Called when the game starts
 void UGrabber::BeginPlay()
 {
 	Super::BeginPlay();
 
-	UE_LOG(LogTemp, Warning, TEXT("Grabber created for : %s"), *GetOwner()->GetName())
 	PlayerController = GetWorld()->GetFirstPlayerController();
+	handle = GetComponentFromOwner<UPhysicsHandleComponent>("physics handle");
+	input = GetComponentFromOwner<UInputComponent>("input component");
+
+	if (input) {
+		input->BindAction("Grab", IE_Pressed, this, &UGrabber::Grab);
+		input->BindAction("Grab", IE_Released, this, &UGrabber::Release);
+	}
 }
 
 
-// Called every frame
-void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UGrabber::Grab()
 {
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	UE_LOG(LogTemp, Warning, TEXT("Grabbing"));
+	TSharedPtr<FHitResult> Hit = GetFirstHit();
 
-	// Get Player View Point
+	if (Hit.IsValid()) {
+		AActor * HittedActor = Hit->GetActor();
+		if (HittedActor) {
+			UE_LOG(LogTemp, Warning, TEXT("Hitting this : %s"), *HittedActor->GetName());
+			if (handle) {
+
+			}
+		}
+	}
+}
+
+void UGrabber::Release()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Releasing"));
+
+}
+
+TSharedPtr<FHitResult> UGrabber::GetFirstHit()
+{
 	FRotator PlayerRotation;
 	FVector PlayerLocation;
 
 	PlayerController->GetPlayerViewPoint(OUT PlayerLocation, OUT PlayerRotation);
 
-	// Ray-cast and see if it hits a movable object in reach distance
-	FVector LineTraceEnd = PlayerLocation + PlayerRotation.Vector() * GrabberRange;
+	// Determining the point
+	FVector LineTraceEnd = PlayerLocation + PlayerRotation.Vector() * GrabberReach;
+	TSharedPtr<FHitResult> Hit(new FHitResult());
 
-	DrawDebugLine(GetWorld(), PlayerLocation, LineTraceEnd, FColor::Red, false, -1.f, 0, 5.f);
+	// Setup query params
+	FCollisionQueryParams QueryParams(FName(TEXT("")), false, PlayerController);
+
+	// Ray-cast and see if it hits a movable object in reach distance
+	GetWorld()->LineTraceSingleByObjectType(
+		OUT *Hit.Get(),
+		PlayerLocation,
+		LineTraceEnd,
+		FCollisionObjectQueryParams(ECollisionChannel::ECC_PhysicsBody),
+		QueryParams
+	);
+
+	return Hit;
+}
+
+// Called every frame
+void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	//DrawDebugLine(GetWorld(), PlayerLocation, LineTraceEnd, FColor::Red, false, -1.f, 0, 5.f);
 }
 
