@@ -37,5 +37,5 @@ private:
 	ATriggerVolume *trigger;
 
 	UPROPERTY(EditAnywhere)
- 	TArray<AActor *> openers;
+ 	TArray<TWeakObjectPtr<AActor>> openers;
 };

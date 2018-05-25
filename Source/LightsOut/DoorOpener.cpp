@@ -23,10 +23,10 @@ void UDoorOpener::BeginPlay()
 	owner = GetOwner();
 
 	// Adding the main player to the list of openers
-	 AActor *pl = GetWorld()->GetFirstPlayerController()->GetPawn();
-	 if (pl != nullptr)
-		openers.Add(pl);
+	AActor* actor = GetWorld()->GetFirstPlayerController()->GetPawn();
+	openers.Emplace(actor);
 }
+
 
 void UDoorOpener::openDoor(float angle)
 {
@@ -41,9 +41,9 @@ void UDoorOpener::TickComponent(float DeltaTime, ELevelTick TickType, FActorComp
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	bool bIsTriggerOverlaped = false;
 
-	// If the one autorised opener for the openers array overlap the trigger, open the door
-	for (AActor *actor : openers) {
-		if (actor != nullptr && trigger->IsOverlappingActor(actor)) {
+//	 If the one autorised opener for the openers array overlap the trigger, open the door
+	for (TWeakObjectPtr<AActor>& actor : openers) {
+		if (actor.IsValid() && trigger->IsOverlappingActor(actor.Get())) {
 			openDoor(-40.f);
 			bIsTriggerOverlaped = true;
 		}
