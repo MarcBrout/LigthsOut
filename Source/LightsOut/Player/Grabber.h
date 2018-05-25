@@ -38,6 +38,7 @@ protected:
 	void Grab();
 	void Release();
 	TSharedPtr<FHitResult> GetFirstHit();
+	FVector getLineTraceEnd();
 
 public:	
 	// Called every frame

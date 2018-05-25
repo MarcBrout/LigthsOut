@@ -1,6 +1,7 @@
 // Copyright Marc Brout 2018
 
 #include "Grabber.h"
+#include "Components/PrimitiveComponent.h"
 #include "DrawDebugHelpers.h"
 
 #define OUT
@@ -41,7 +42,11 @@ void UGrabber::Grab()
 		if (HittedActor) {
 			UE_LOG(LogTemp, Warning, TEXT("Hitting this : %s"), *HittedActor->GetName());
 			if (handle) {
-
+				handle->GrabComponentAtLocation(
+					Hit->GetComponent(), 
+					FName(), 
+					Hit->GetComponent()->GetOwner()->GetActorLocation()
+				);
 			}
 		}
 	}
@@ -50,7 +55,10 @@ void UGrabber::Grab()
 void UGrabber::Release()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Releasing"));
-
+	if (handle) {
+		if (handle->GrabbedComponent)
+			handle->ReleaseComponent();
+	}
 }
 
 TSharedPtr<FHitResult> UGrabber::GetFirstHit()
@@ -79,10 +87,28 @@ TSharedPtr<FHitResult> UGrabber::GetFirstHit()
 	return Hit;
 }
 
+FVector UGrabber::getLineTraceEnd()
+{
+	FRotator PlayerRotation;
+	FVector PlayerLocation;
+
+	PlayerController->GetPlayerViewPoint(OUT PlayerLocation, OUT PlayerRotation);
+
+	// Determining the point
+	return PlayerLocation + PlayerRotation.Vector() * GrabberReach;;
+}
+
 // Called every frame
 void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	//DrawDebugLine(GetWorld(), PlayerLocation, LineTraceEnd, FColor::Red, false, -1.f, 0, 5.f);
+	if (handle) {
+		if (handle->GrabbedComponent) {
+			FVector target = getLineTraceEnd();
+
+			handle->SetTargetLocation(target);
+		}
+	}
 }
 
