@@ -61,14 +61,17 @@ void UGrabber::Release()
 
 TSharedPtr<FHitResult> UGrabber::GetFirstHit()
 {
+	TSharedPtr<FHitResult> HitResult(new FHitResult());
 	FRotator PlayerRotation;
 	FVector PlayerLocation;
+
+	if (PlayerController == nullptr)
+		return HitResult;
 
 	PlayerController->GetPlayerViewPoint(OUT PlayerLocation, OUT PlayerRotation);
 
 	// Determining the point
 	FVector LineTraceEnd = PlayerLocation + PlayerRotation.Vector() * GrabberReach;
-	TSharedPtr<FHitResult> HitResult(new FHitResult());
 
 	// Setup query params
 	FCollisionQueryParams QueryParams(FName(TEXT("")), false, PlayerController);
@@ -90,6 +93,9 @@ FVector UGrabber::getLineTraceEnd()
 	FRotator PlayerRotation;
 	FVector PlayerLocation;
 
+	if (PlayerController == nullptr)
+		return PlayerLocation;
+
 	PlayerController->GetPlayerViewPoint(OUT PlayerLocation, OUT PlayerRotation);
 
 	// Determining the point
@@ -101,11 +107,12 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	//DrawDebugLine(GetWorld(), PlayerLocation, LineTraceEnd, FColor::Red, false, -1.f, 0, 5.f);
-	if (handle) {
-		if (handle->GrabbedComponent) {
-			FVector target = getLineTraceEnd();
+	if (handle == nullptr) { 
+		return ; 
+	}
 
-			handle->SetTargetLocation(target);
-		}
+	if (handle->GrabbedComponent) {
+		FVector target = getLineTraceEnd();
+		handle->SetTargetLocation(target);
 	}
 }

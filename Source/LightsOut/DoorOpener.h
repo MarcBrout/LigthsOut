@@ -7,6 +7,8 @@
 #include "Engine/TriggerVolume.h"
 #include "DoorOpener.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnOpening, float, angle);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnClosing);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class LIGHTSOUT_API UDoorOpener : public UActorComponent
@@ -16,12 +18,11 @@ class LIGHTSOUT_API UDoorOpener : public UActorComponent
 public:	
 	// Sets default values for this component's properties
 	UDoorOpener();
+	float GetOpenAngleTick() const;
 
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
-
-	void RotateDoor(float angle);
 
 	float GetTotalMassOfActorsOnPlate() const;
 
@@ -47,4 +48,10 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	float MassRequiredToTriggerOpenTick = 30.f;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnOpening OnOpening;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnClosing OnClosing;
 };

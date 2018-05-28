@@ -45,7 +45,7 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 private:
-	APlayerController * PlayerController;
+	APlayerController* PlayerController = nullptr;
 
 	UPROPERTY(EditAnywhere)
 	float GrabberReach = 100.f;

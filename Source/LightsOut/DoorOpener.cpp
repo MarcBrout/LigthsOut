@@ -18,6 +18,11 @@ UDoorOpener::UDoorOpener()
 }
 
 
+float UDoorOpener::GetOpenAngleTick() const
+{
+	return OpenAngleTick;
+}
+
 // Called when the game starts
 void UDoorOpener::BeginPlay()
 {
@@ -28,12 +33,6 @@ void UDoorOpener::BeginPlay()
 	// Adding the main player to the list of openers
 	AActor* actor = GetWorld()->GetFirstPlayerController()->GetPawn();
 	openers.Emplace(actor);
-}
-
-
-void UDoorOpener::RotateDoor(float angle)
-{
-	owner->SetActorRotation(FRotator(0.f, angle, 0.f));
 }
 
 float UDoorOpener::GetTotalMassOfActorsOnPlate() const
@@ -61,13 +60,13 @@ void UDoorOpener::TickComponent(float DeltaTime, ELevelTick TickType, FActorComp
 	if (totalMass > 0) {
 		int times = totalMass / MassRequiredToTriggerOpenTick;
 
-		RotateDoor(OpenAngleTick * times);
+		OnOpening.Broadcast(OpenAngleTick * times);
 		LastDoorOpenTime = GetWorld()->GetTimeSeconds();
 	}
 
 	// close the door after some times
 	if (GetWorld()->GetTimeSeconds() - LastDoorOpenTime > DoorCloseDelay) {
-		RotateDoor(0.f);
+		OnClosing.Broadcast();
 	}
 }
 
