@@ -34,17 +34,15 @@ void UGrabber::BeginPlay()
 
 void UGrabber::Grab()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Grabbing"));
 	TSharedPtr<FHitResult> Hit = GetFirstHit();
 
 	if (Hit.IsValid()) {
 		AActor * HittedActor = Hit->GetActor();
 		if (HittedActor) {
-			UE_LOG(LogTemp, Warning, TEXT("Hitting this : %s"), *HittedActor->GetName());
 			if (handle) {
 				handle->GrabComponentAtLocation(
 					Hit->GetComponent(), 
-					FName(), 
+					NAME_None, // No bones, no name needed
 					Hit->GetComponent()->GetOwner()->GetActorLocation()
 				);
 			}
@@ -70,21 +68,21 @@ TSharedPtr<FHitResult> UGrabber::GetFirstHit()
 
 	// Determining the point
 	FVector LineTraceEnd = PlayerLocation + PlayerRotation.Vector() * GrabberReach;
-	TSharedPtr<FHitResult> Hit(new FHitResult());
+	TSharedPtr<FHitResult> HitResult(new FHitResult());
 
 	// Setup query params
 	FCollisionQueryParams QueryParams(FName(TEXT("")), false, PlayerController);
 
 	// Ray-cast and see if it hits a movable object in reach distance
 	GetWorld()->LineTraceSingleByObjectType(
-		OUT *Hit.Get(),
+		OUT *HitResult.Get(),
 		PlayerLocation,
 		LineTraceEnd,
 		FCollisionObjectQueryParams(ECollisionChannel::ECC_PhysicsBody),
 		QueryParams
 	);
 
-	return Hit;
+	return HitResult;
 }
 
 FVector UGrabber::getLineTraceEnd()
@@ -111,4 +109,3 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 		}
 	}
 }
-

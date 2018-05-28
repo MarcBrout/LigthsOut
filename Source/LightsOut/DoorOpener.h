@@ -23,6 +23,8 @@ protected:
 
 	void RotateDoor(float angle);
 
+	float GetTotalMassOfActorsOnPlate() const;
+
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -32,15 +34,17 @@ private:
 	float LastDoorOpenTime = 0.f;
 	
 	UPROPERTY(EditAnywhere)
-	float OpenAngle;
+	float OpenAngleTick;
 
 	UPROPERTY(EditAnywhere)
 	ATriggerVolume *trigger;
 
 	UPROPERTY(EditAnywhere)
- 	TArray<TWeakObjectPtr<AActor>> openers;
+ 	TArray<AActor*> openers;
 
 	UPROPERTY(EditAnywhere)
 	float DoorCloseDelay = 1.f;
 
+	UPROPERTY(EditAnywhere)
+	float MassRequiredToTriggerOpenTick = 30.f;
 };

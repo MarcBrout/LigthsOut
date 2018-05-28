@@ -2,7 +2,10 @@
 
 #include "DoorOpener.h"
 #include "Engine/World.h"
+#include "Components/PrimitiveComponent.h"
 #include "GameFramework/Actor.h"
+
+#define OUT
 
 // Sets default values for this component's properties
 UDoorOpener::UDoorOpener()
@@ -33,6 +36,20 @@ void UDoorOpener::RotateDoor(float angle)
 	owner->SetActorRotation(FRotator(0.f, angle, 0.f));
 }
 
+float UDoorOpener::GetTotalMassOfActorsOnPlate() const
+{
+	float TotalMass = 0.f;
+	TArray<AActor*> OverlappingActors;
+
+	trigger->GetOverlappingActors(OUT OverlappingActors);
+	for (AActor* actor : OverlappingActors) {
+		if (openers.Find(actor) != INDEX_NONE)
+			TotalMass += actor->FindComponentByClass<UPrimitiveComponent>()->GetMass();
+	}
+	UE_LOG(LogTemp, Warning, TEXT("TotalMass  = %f"), TotalMass);
+	return TotalMass;
+}
+
 
 // Called every frame
 void UDoorOpener::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -40,11 +57,12 @@ void UDoorOpener::TickComponent(float DeltaTime, ELevelTick TickType, FActorComp
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	
 //	 If the one autorised opener for the openers array overlap the trigger, open the door
-	for (TWeakObjectPtr<AActor>& actor : openers) {
-		if (actor.IsValid() && trigger->IsOverlappingActor(actor.Get())) {
-			RotateDoor(OpenAngle);
-			LastDoorOpenTime = GetWorld()->GetTimeSeconds();
-		}
+	float totalMass = GetTotalMassOfActorsOnPlate();
+	if (totalMass > 0) {
+		int times = totalMass / MassRequiredToTriggerOpenTick;
+
+		RotateDoor(OpenAngleTick * times);
+		LastDoorOpenTime = GetWorld()->GetTimeSeconds();
 	}
 
 	// close the door after some times
