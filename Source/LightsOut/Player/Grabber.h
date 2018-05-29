@@ -10,8 +10,11 @@
 #include "Components/InputComponent.h"
 #include "Engine/World.h"
 #include "SharedPointer.h"
+#include "Engine/SpotLight.h"
 #include "Grabber.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCubeGrab);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCubeRelease);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class LIGHTSOUT_API UGrabber : public UActorComponent
@@ -52,4 +55,10 @@ private:
 	
 	UPhysicsHandleComponent* handle = nullptr;
 	UInputComponent* input = nullptr;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnCubeGrab OnCubeGrab;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnCubeRelease OnCubeRelease;
 };

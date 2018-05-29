@@ -52,10 +52,10 @@ void UGrabber::Grab()
 
 void UGrabber::Release()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Releasing"));
 	if (handle) {
-		if (handle->GrabbedComponent)
+		if (handle->GrabbedComponent) {
 			handle->ReleaseComponent();
+		}
 	}
 }
 
@@ -106,7 +106,6 @@ FVector UGrabber::getLineTraceEnd()
 void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	//DrawDebugLine(GetWorld(), PlayerLocation, LineTraceEnd, FColor::Red, false, -1.f, 0, 5.f);
 	if (handle == nullptr) { 
 		return ; 
 	}
@@ -114,5 +113,15 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 	if (handle->GrabbedComponent) {
 		FVector target = getLineTraceEnd();
 		handle->SetTargetLocation(target);
+		if (handle->GrabbedComponent->GetOwner()->GetName() == "SM_Cube") {
+			OnCubeGrab.Broadcast();
+		}
+		else 
+		{
+			OnCubeRelease.Broadcast();
+		}
+	}
+	else {
+		OnCubeRelease.Broadcast();
 	}
 }

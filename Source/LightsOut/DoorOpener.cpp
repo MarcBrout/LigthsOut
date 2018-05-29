@@ -33,19 +33,29 @@ void UDoorOpener::BeginPlay()
 	// Adding the main player to the list of openers
 	AActor* actor = GetWorld()->GetFirstPlayerController()->GetPawn();
 	openers.Emplace(actor);
-}
+
+	if (trigger == nullptr) {
+		UE_LOG(LogTemp, Error, TEXT("Trigger missging from %s !"), *GetOwner()->GetName());
+	}
+
+	if (openers.Num() == 0) {
+		UE_LOG(LogTemp, Error, TEXT("There is no opener added !"));
+	}
+} 
 
 float UDoorOpener::GetTotalMassOfActorsOnPlate() const
 {
 	float TotalMass = 0.f;
 	TArray<AActor*> OverlappingActors;
 
-	trigger->GetOverlappingActors(OUT OverlappingActors);
-	for (AActor* actor : OverlappingActors) {
-		if (openers.Find(actor) != INDEX_NONE)
-			TotalMass += actor->FindComponentByClass<UPrimitiveComponent>()->GetMass();
+	if (trigger) {
+		trigger->GetOverlappingActors(OUT OverlappingActors);
+		for (AActor* actor : OverlappingActors) {
+			if (openers.Find(actor) != INDEX_NONE)
+				TotalMass += actor->FindComponentByClass<UPrimitiveComponent>()->GetMass();
+		}
 	}
-	UE_LOG(LogTemp, Warning, TEXT("TotalMass  = %f"), TotalMass);
+
 	return TotalMass;
 }
 
